@@ -1,0 +1,36 @@
+<div class="container">
+  <div class="top-container">
+    <div class="logo">
+      <img src="<%= OrbitMines::Library::LOGO %>" alt="OrbitMines Logo">
+    </div>
+    <div class="ip">
+      <p>IP: <%= OrbitMines::IP %></p>
+    </div>
+    <div class="player_count">
+      <p><%= @player_count['TOTAL'] %> Online</p>
+    </div>
+  </div>
+
+  <div id="navigation" style="display: none;">
+    <ul id="navigation-list">
+      <% OrbitMines::NAVIGATION.each do |nav_item| %>
+        <li><a href=<%= nav_item.link %> target="_blank"><%= nav_item.display %></a></li>
+      <% end %>
+    </ul>
+  </div>
+
+  <div id="servers">
+    <% OrbitMines::Server::ALL.each do |server| %>
+      <div class="server" id="<%= server.name.downcase %>">
+        <img src="<%= server.icon %>" alt="<%= server.name %> Icon">
+
+      </div>
+      <div class="info">
+          <div class="info-item" id="info-<%= server.name.downcase %>">
+            <img src="<%= server.logo %>" alt="<%= server.name %> Logo">
+            <p><%= server.name %></p>
+          </div>
+      </div>
+    <% end %>
+  </div>
+</div>
