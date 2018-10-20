@@ -42,41 +42,37 @@ $(document).on('mousemove', function(e){
     if ($(window).width() <= 750)
         return
 
-    if (e.pageY <= 600) {
+    var x_off = e.pageX >= 700 ? -375 : 25;
+
+    if (e.pageY <= 500) {
         $('.info-item').css({
-            left:  e.pageX+25,
+            left:  e.pageX+x_off,
             top:   e.pageY+25
         });
     } else {
         $('.info-item').css({
-            left:  e.pageX+25,
+            left:  e.pageX+x_off,
             top:   e.pageY - 275
         });
     }
 });
 
-//
-// function displayInfo(e) {
-//     $('#info').css({
-//         left: e.pageX,
-//         top: e.pageY
-//     })
-// }
+function copyIP(ip) {
+    var element = document.getElementById("ip-text");
 
-// $(document).on('mousemove', function(e){
-//     $('#your_div_id').css({
-//         left:  e.pageX,
-//         top:   e.pageY
-//     });
-// });
-//
-// var flag = false;
-// $($wrapper).mouseover(function(){
-//     flag = true;
-//     TweenLite.to($circle,0.4,{scale:1,autoAlpha:1})
-//     $($wrapper).on('mousemove', displayInfo);
-// });
-// $($wrapper).mouseout(function(){
-//     flag = false;
-//     TweenLite.to($circle,0.4,{scale:0.1,autoAlpha:0})
-// });
+    if (element.innerHTML == "Copied!")
+        return;
+
+    element.innerHTML = "Copied!";
+
+    const temp = document.createElement('textarea');
+    temp.value = ip;
+    document.body.appendChild(temp);
+    temp.select();
+    document.execCommand('copy');
+    document.body.removeChild(temp);
+
+    setTimeout(function () {
+        element.innerHTML = ip;
+    }, 2000)
+}

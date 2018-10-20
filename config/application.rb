@@ -18,11 +18,26 @@ module OrbitMines
     LOGO = new('assets/orbitmines.png')
     ORBITMINES_ICON = new('assets/orbitmines_icon.png')
 
+    NAV_ORBITMINES_ICON = new('assets/orbitmines250x250.png')
+    NAV_DISCORD_ICON = new('assets/discord250x250.png')
+    NAV_TWITTER_ICON = new('assets/twitter250x250.png')
+    NAV_YOUTUBE_ICON = new('assets/youtube250x250.png')
+
     SURVIVAL_ICON = new('assets/survival_icon.png')
     KITPVP_ICON = new('assets/kitpvp_icon.png')
+    PRISON_ICON = new('assets/prison_icon.png')
+    CREATIVE_ICON = new('assets/creative_icon.png')
+    SKYBLOCK_ICON = new('assets/skyblock_icon.png')
+    FOG_ICON = new('assets/fog_icon.png')
+    MINIGAMES_ICON = new('assets/minigames_icon.png')
 
     SURVIVAL = new('assets/survival.png')
     KITPVP = new('assets/kitpvp.png')
+    PRISON = new('assets/prison.png')
+    CREATIVE = new('assets/creative.png')
+    SKYBLOCK = new('assets/skyblock.png')
+    FOG = new('assets/fog.png')
+    MINIGAMES = new('assets/minigames.png')
 
     def to_s
       @path
@@ -80,7 +95,7 @@ module OrbitMines
     def get(table, columns = [], wheres = {})
       results = @client.query("SELECT #{columns_to_s(columns.kind_of?(Array) ? columns : [ columns ])} FROM `#{table.name}`#{wheres_to_s(wheres)}")
 
-      results.each[0]
+      results
     end
 
     def sum(table, column, wheres = {})
@@ -154,48 +169,106 @@ module OrbitMines
       end
       SERVERS = Servers.new('Servers', Servers::constants)
 
+      class PlayTime < Table
+        UUID = Column.new('UUID')
+        KITPVP = Column.new('KITPVP')
+        PRISON = Column.new('PRISON')
+        CREATIVE = Column.new('CREATIVE')
+        HUB = Column.new('HUB')
+        SURVIVAL = Column.new('SURVIVAL')
+        SKYBLOCK = Column.new('SKYBLOCK')
+        FOG = Column.new('FOG')
+        MINIGAMES = Column.new('MINIGAMES')
+        UHSURVIVAL = Column.new('UHSurvival')
+      end
+      PLAY_TIME = PlayTime.new('PlayTime', PlayTime::constants)
     end
   end
 
   class Server
-    attr_reader :name, :color, :play_time_column, :icon, :logo
+    attr_reader :name, :color, :play_time_column, :icon, :logo, :underline, :description
 
-    def initialize(name, color, play_time_column, icon, logo)
+    def initialize(string, name, color, play_time_column, icon, logo, underline = '', description = '')
+      @string = string
       @name = name
       @color = color
       @play_time_column = play_time_column
       @icon = icon
       @logo = logo
+      @underline = underline
+      @description = description
     end
 
-    HUB = new('Hub', Color::TEAL, nil, Library::ORBITMINES_ICON, Library::LOGO)
-    SURVIVAL = new('Survival', Color::LIME, nil, Library::SURVIVAL_ICON, Library::SURVIVAL)
-    KITPVP = new('KitPvP', Color::RED, nil, Library::KITPVP_ICON, Library::KITPVP)
+    HUB = new('HUB', 'Hub', Color::TEAL, Database::Table::PlayTime::HUB, Library::ORBITMINES_ICON, Library::LOGO,
+      'Moonbase',
+      'The center of the OrbitMines Galaxy is located here.'
+    )
+    SURVIVAL = new('SURVIVAL', 'Survival', Color::LIME, Database::Table::PlayTime::SURVIVAL, Library::SURVIVAL_ICON, Library::SURVIVAL,
+      'Colony on Planet Earth',
+      'The most recent OrbitMines colony sent to Planet Earth. Where your survival is of the utmost importance.'
+    )
+    KITPVP = new('KITPVP', 'KitPvP', Color::RED, Database::Table::PlayTime::KITPVP, Library::KITPVP_ICON, Library::KITPVP,
+      'Classified Gladiator Arena',
+      'A gladiator arena setup by an unknown general and admiral in the OrbitMines fleet, located at Military Base #27.'
+    )
+    PRISON = new('PRISON', 'Prison', Color::MAROON, Database::Table::PlayTime::PRISON, Library::PRISON_ICON, Library::PRISON)
+    CREATIVE = new('CREATIVE', 'Creative', Color::FUCHSIA, Database::Table::PlayTime::CREATIVE, Library::CREATIVE_ICON, Library::CREATIVE)
+    SKYBLOCK = new('SKYBLOCK', 'SkyBlock', Color::PURPLE, Database::Table::PlayTime::SKYBLOCK, Library::SKYBLOCK_ICON, Library::SKYBLOCK)
+    FOG = new('FOG', 'FoG', Color::YELLOW, Database::Table::PlayTime::FOG, Library::FOG_ICON, Library::FOG)
+    MINIGAMES = new('MINIGAMES', 'MiniGames', Color::WHITE, Database::Table::PlayTime::MINIGAMES, Library::MINIGAMES_ICON, Library::MINIGAMES)
 
-    ALL = [ HUB, SURVIVAL, KITPVP ]
+    ALL = [ HUB, SURVIVAL, KITPVP, PRISON, CREATIVE, SKYBLOCK, FOG, MINIGAMES ]
+
+    def to_s
+      @string
+    end
+
+    def self.from(string)
+      ALL.each do |server|
+        return server if server.to_s.eql?(string)
+      end
+
+      nil
+    end
   end
 
   class Status
-    attr_reader :name, :color
+    attr_reader :string, :name, :color
 
-    def initialize(name, color)
+    def initialize(string, name, color)
+      @string = string
       @name = name
       @color = color
     end
 
-    ONLINE = new('Online', Color::LIME)
-    OFFLINE = new('Offline', Color::RED)
-    MAINTENANCE = new('Maintenance', Color::FUCHSIA)
-    RESTARTING = new('Restarting', Color::GRAY)
+    ONLINE = new('ONLINE', 'Online', Color::LIME)
+    OFFLINE = new('OFFLINE', 'Offline', Color::RED)
+    MAINTENANCE = new('MAINTENANCE', 'Maintenance', Color::FUCHSIA)
+    RESTARTING = new('RESTARTING', 'Restarting', Color::GRAY)
+
+    ALL = [ ONLINE, OFFLINE, MAINTENANCE, RESTARTING ]
+
+    def to_s
+      @string
+    end
+
+    def self.from(string)
+      ALL.each do |server|
+        return server if server.to_s.eql?(string)
+      end
+
+      nil
+    end
   end
 
   module Navigation
     class Item
-      attr_reader :display, :link
+      attr_reader :display, :link, :icon
 
-      def initialize(display, link)
+      def initialize(display, link, icon)
         @display = display
         @link = link
+        @icon = icon
       end
     end
   end
@@ -212,10 +285,10 @@ module OrbitMines
   # Initialize OrbitMines
   DATABASE = OrbitMines::Database.new
   NAVIGATION = [
-      Navigation::Item.new('Discord', 'https://discordapp.com/invite/QjVGJMe'),
-      Navigation::Item.new('Shop', 'https://orbitmines.buycraft.net'),
-      Navigation::Item.new('YouTube', 'https://www.youtube.com/channel/UCjUXtvbrnqx206YnypjagVQ'),
-      Navigation::Item.new('Twitter', 'https://www.twitter.com/OrbitMines')
+      Navigation::Item.new('Discord', 'https://discordapp.com/invite/QjVGJMe', Library::NAV_DISCORD_ICON),
+      Navigation::Item.new('Shop', 'https://orbitmines.buycraft.net', Library::NAV_ORBITMINES_ICON),
+      Navigation::Item.new('YouTube', 'https://www.youtube.com/channel/UCjUXtvbrnqx206YnypjagVQ', Library::NAV_YOUTUBE_ICON),
+      Navigation::Item.new('Twitter', 'https://www.twitter.com/OrbitMines', Library::NAV_TWITTER_ICON)
   ]
   IP = 'Hub.OrbitMines.com'
 end

@@ -1,36 +1,57 @@
+<div class="background"></div>
 <div class="container">
   <div class="top-container">
     <div class="logo">
       <img src="<%= OrbitMines::Library::LOGO %>" alt="OrbitMines Logo">
     </div>
-    <div class="ip">
-      <p>IP: <%= OrbitMines::IP %></p>
+    <div class="ip" onclick="copyIP('<%= OrbitMines::IP %>')">
+      <p id="ip-text">IP: <%= OrbitMines::IP %></p>
     </div>
     <div class="player_count">
-      <p><%= @player_count['TOTAL'] %> Online</p>
+      <p><%= @player_count %> Online</p>
     </div>
   </div>
 
-  <div id="navigation" style="display: none;">
-    <ul id="navigation-list">
-      <% OrbitMines::NAVIGATION.each do |nav_item| %>
-        <li><a href=<%= nav_item.link %> target="_blank"><%= nav_item.display %></a></li>
-      <% end %>
-    </ul>
+  <div class="bottom-container">
+    <div class="navigation">
+      <ul class="navigation-list">
+        <% OrbitMines::NAVIGATION.each do |nav_item| %>
+          <li><a href=<%= nav_item.link %> target="_blank" class="navigation-item" style="background: url('<%= nav_item.icon %>') no-repeat; background-size: 63px;"><%= nav_item.display %></a></li>
+        <% end %>
+      </ul>
+    </div>
   </div>
 
   <div id="servers">
     <% OrbitMines::Server::ALL.each do |server| %>
-      <div class="server" id="<%= server.name.downcase %>">
+      <% released = @servers.key?(server) %>
+      <div class="server<%= (released ? '' : ' not-released') %>" id="<%= server.name.downcase %>">
         <img src="<%= server.icon %>" alt="<%= server.name %> Icon">
-
       </div>
-      <div class="info">
-          <div class="info-item" id="info-<%= server.name.downcase %>">
-            <img src="<%= server.logo %>" alt="<%= server.name %> Logo">
-            <p><%= server.name %></p>
-          </div>
-      </div>
+      <% if released %>
+        <% data = @servers[server] %>
+        <div class="info">
+            <div class="info-item" id="info-<%= server.name.downcase %>">
+              <img src="<%= server.logo %>" alt="<%= server.name %> Logo">
+              <p style="font-weight: bold;"><%= server.underline %></p>
+              <hr>
+              <p style="font-weight: bold; font-style: italic;"><%= server.description %></p>
+              <br>
+              <%
+                status = data.status
+                status_color = data.status.color
+                color = server.color
+              %>
+              <h3 style="line-height: 0; color: rgb(<%= status_color.r %>, <%= status_color.g %>, <%= status_color.b %>);"><%= status.string %></h3>
+              <% if data.status == OrbitMines::Status::ONLINE %>
+                <h2><span style="color: rgb(<%= color.r %>, <%= color.g %>, <%= color.b %>);"><%= data.players %></span> / <%= data.max_players %></h2>
+              <% end %>
+              <br>
+              <hr>
+              <p style="font-style: italic;">Total of <%= number_with_delimiter(data.play_time, :delimiter => ',') %> hours played</p>
+            </div>
+        </div>
+      <% end %>
     <% end %>
   </div>
-</div>
+</div>/
